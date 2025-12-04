@@ -1,0 +1,90 @@
+/* static/style.css */
+
+/* 1. GLOBAL SETTINGS */
+body {
+    background-color: #f4f6f9; /* Softer, professional grey-blue background */
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh; /* Ensures footer stays at the bottom */
+}
+
+/* 2. NAVBAR STYLING (BLACK) */
+.navbar {
+    background: #000000 !important; /* Pure Black */
+    box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+}
+
+.navbar-brand {
+    font-weight: 700;
+    letter-spacing: 0.5px;
+}
+
+/* 3. FOOTER STYLING (BLACK) */
+footer {
+    background-color: #000000 !important; /* Pure Black */
+    color: white;
+    padding: 20px 0;
+    margin-top: auto;
+}
+
+/* 4. CARD ANIMATIONS (The "Wow" Factor) */
+.card {
+    border: none;
+    border-radius: 12px;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* When you hover over a stats box, it lifts up slightly */
+.card:hover {
+    transform: translateY(-5px); 
+    box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important;
+}
+
+/* 5. TABLE STYLING */
+.table thead th {
+    background-color: #e9ecef;
+    color: #495057;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.85rem;
+    letter-spacing: 0.5px;
+    border-top: none;
+}
+
+.table tbody tr {
+    transition: background-color 0.2s;
+}
+
+/* 6. BADGE REFINEMENT */
+.badge {
+    font-weight: 500;
+    letter-spacing: 0.3px;
+    padding: 0.5em 0.8em;
+}
+
+/* 7. BUTTONS */
+.btn-primary {
+    background: #0d6efd;
+    border: none;
+    transition: all 0.2s;
+}
+
+.btn-primary:hover {
+    background: #0b5ed7;
+    transform: scale(1.02); /* Slight grow effect */
+}
+
+/* 8. MODAL (POP-UP) POLISH */
+.modal-content {
+    border-radius: 15px;
+    border: none;
+    box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+}
+
+.modal-header {
+    border-top-left-radius: 15px;
+    border-top-right-radius: 15px;
+    background: #0d6efd; /* Keep Modal header Blue for contrast */
+    color: white;
+}

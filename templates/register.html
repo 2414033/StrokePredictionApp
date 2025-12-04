@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-5">
+        <div class="card shadow-lg mt-5">
+            <div class="card-header bg-success text-white text-center py-3">
+                <h4><i class="fa-solid fa-user-plus"></i> Create Account</h4>
+            </div>
+            <div class="card-body p-4">
+                <form method="POST">
+                    {{ form.hidden_tag() }}
+                    <div class="mb-3">
+                        <label class="form-label">Username</label>
+                        {{ form.username(class="form-control") }}
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Password</label>
+                        {{ form.password(class="form-control") }}
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Confirm Password</label>
+                        {{ form.confirm_password(class="form-control") }}
+                    </div>
+                    <div class="d-grid gap-2">
+                        {{ form.submit(class="btn btn-success btn-lg") }}
+                    </div>
+                </form>
+            </div>
+            <div class="card-footer text-center bg-white border-0 pb-3">
+                <small>Already have an account? <a href="{{ url_for('login') }}" class="text-success fw-bold">Login</a></small>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

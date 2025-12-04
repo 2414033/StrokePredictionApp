@@ -1,0 +1,217 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <div>
+        <h2 class="h2 fw-bold text-primary"><i class="fa-solid fa-chart-line"></i> Medical Dashboard</h2>
+        <p class="text-muted">Real-time analysis and patient management system.</p>
+    </div>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <div class="btn-group me-2">
+            <a href="{{ url_for('export_data') }}" class="btn btn-sm btn-outline-success">
+                <i class="fa-solid fa-file-excel"></i> Export to Excel
+            </a>
+            <button type="button" class="btn btn-sm btn-outline-secondary">Share</button>
+        </div>
+        <button type="button" class="btn btn-sm btn-primary shadow" data-bs-toggle="modal" data-bs-target="#addPatientModal">
+            <i class="fa-solid fa-plus"></i> Add New Patient
+        </button>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card bg-primary text-white shadow h-100 py-2 border-0">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-uppercase mb-1" style="opacity: 0.8;">Total Patients</div>
+                        <div class="h5 mb-0 font-weight-bold">{{ patients|length }}</div>
+                    </div>
+                    <div class="col-auto"><i class="fas fa-users fa-2x opacity-50"></i></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card bg-danger text-white shadow h-100 py-2 border-0">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-uppercase mb-1" style="opacity: 0.8;">High Risk Cases</div>
+                        <div class="h5 mb-0 font-weight-bold">{{ high_risk }}</div>
+                    </div>
+                    <div class="col-auto"><i class="fas fa-heart-crack fa-2x opacity-50"></i></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card bg-warning text-white shadow h-100 py-2 border-0">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-uppercase mb-1" style="opacity: 0.8;">Medium Risk</div>
+                        <div class="h5 mb-0 font-weight-bold">{{ medium_risk }}</div>
+                    </div>
+                    <div class="col-auto"><i class="fas fa-exclamation-triangle fa-2x opacity-50"></i></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card bg-success text-white shadow h-100 py-2 border-0">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-uppercase mb-1" style="opacity: 0.8;">Low Risk</div>
+                        <div class="h5 mb-0 font-weight-bold">{{ low_risk }}</div>
+                    </div>
+                    <div class="col-auto"><i class="fas fa-shield-heart fa-2x opacity-50"></i></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-4 mb-4">
+        <div class="card shadow mb-4 h-100">
+            <div class="card-header py-3 bg-white">
+                <h6 class="m-0 font-weight-bold text-primary">Risk Distribution</h6>
+            </div>
+            <div class="card-body">
+                <div class="chart-pie pt-4 pb-2">
+                    <canvas id="riskChart"></canvas>
+                </div>
+                <div class="mt-4 text-center small text-muted">
+                    <span class="me-2"><i class="fas fa-circle text-danger"></i> High</span>
+                    <span class="me-2"><i class="fas fa-circle text-warning"></i> Medium</span>
+                    <span class="me-2"><i class="fas fa-circle text-success"></i> Low</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-8 mb-4">
+        <div class="card shadow mb-4 h-100">
+            <div class="card-header py-3 bg-white d-flex justify-content-between align-items-center">
+                <h6 class="m-0 font-weight-bold text-primary">Recent Patient Records</h6>
+                <form class="d-flex" method="GET" action="{{ url_for('dashboard') }}">
+                    <input class="form-control form-control-sm me-2" type="search" name="q" placeholder="Search..." aria-label="Search">
+                    <button class="btn btn-sm btn-primary" type="submit"><i class="fa-solid fa-search"></i></button>
+                    {% if request.args.get('q') %}
+                        <a href="{{ url_for('dashboard') }}" class="btn btn-sm btn-outline-secondary ms-1">Clear</a>
+                    {% endif %}
+                </form>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Name</th><th>Age</th><th>Medical Profile</th><th>Social Profile</th><th>Risk</th><th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for patient in patients %}
+                            <tr class="{% if patient.stroke_risk == 'High Risk' %}table-danger{% elif patient.stroke_risk == 'Medium Risk' %}table-warning{% else %}table-light{% endif %}">
+                                <td class="fw-bold">{{ patient.name }}</td>
+                                <td>{{ patient.age }}</td>
+                                <td>
+                                    <div class="small">
+                                        {% if patient.hypertension == '1' %} <span class="badge bg-danger">HT</span> {% endif %}
+                                        {% if patient.heart_disease == '1' %} <span class="badge bg-danger">HD</span> {% endif %}
+                                        {% if patient.smoking_status == 'smokes' %} <i class="fa-solid fa-smoking" title="Smoker"></i> {% endif %}
+                                    </div>
+                                    <div class="text-muted" style="font-size: 0.8rem;">
+                                        Gluc: {{ patient.avg_glucose_level }} | BMI: {{ patient.bmi }}
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="small fw-bold">{{ patient.work_type }}</div>
+                                    <div class="text-muted" style="font-size: 0.8rem;">
+                                        {{ patient.residence_type }} | 
+                                        {% if patient.ever_married == 'Yes' %}Married{% else %}Single{% endif %}
+                                    </div>
+                                </td>
+                                <td>
+                                    {% if patient.stroke_risk == 'High Risk' %}<span class="badge bg-danger">High</span>
+                                    {% elif patient.stroke_risk == 'Medium Risk' %}<span class="badge bg-warning text-dark">Medium</span>
+                                    {% else %}<span class="badge bg-success">Low</span>{% endif %}
+                                </td>
+                                <td>
+                                    <a href="{{ url_for('edit_patient', patient_id=patient.id) }}" class="btn btn-sm btn-light text-primary"><i class="fa-solid fa-pen"></i></a>
+                                    <form action="{{ url_for('delete_patient', patient_id=patient.id) }}" method="POST" style="display:inline;">
+                                        <button type="submit" class="btn btn-sm btn-light text-danger" onclick="return confirm('Delete?')"><i class="fa-solid fa-trash"></i></button>
+                                    </form>
+                                </td>
+                            </tr>
+                            {% else %}
+                            <tr><td colspan="6" class="text-center py-5">No records found.</td></tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="addPatientModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white"><h5 class="modal-title">Add New Patient</h5><button class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div>
+            <form action="{{ url_for('add_patient') }}" method="POST">
+                <div class="modal-body bg-light">
+                    {{ form.hidden_tag() }}
+                    <div class="card p-3 border-0 shadow-sm mb-3">
+                        <h6 class="text-primary border-bottom pb-2">Personal & Social</h6>
+                        <div class="row g-3">
+                            <div class="col-md-6"><label class="small fw-bold">Name</label>{{ form.name(class="form-control") }}</div>
+                            <div class="col-md-3"><label class="small fw-bold">Gender</label>{{ form.gender(class="form-select") }}</div>
+                            <div class="col-md-3"><label class="small fw-bold">Age</label>{{ form.age(class="form-control") }}</div>
+                            <div class="col-md-4"><label class="small">Work Type</label>{{ form.work_type(class="form-select") }}</div>
+                            <div class="col-md-4"><label class="small">Residence</label>{{ form.residence_type(class="form-select") }}</div>
+                            <div class="col-md-4"><label class="small">Married</label>{{ form.ever_married(class="form-select") }}</div>
+                        </div>
+                    </div>
+                    <div class="card p-3 border-0 shadow-sm">
+                        <h6 class="text-primary border-bottom pb-2">Medical Profile</h6>
+                        <div class="row g-3">
+                            <div class="col-md-4"><label class="small fw-bold">Hypertension</label>{{ form.hypertension(class="form-select") }}</div>
+                            <div class="col-md-4"><label class="small fw-bold">Heart Disease</label>{{ form.heart_disease(class="form-select") }}</div>
+                            <div class="col-md-4"><label class="small fw-bold">Smoking</label>{{ form.smoking_status(class="form-select") }}</div>
+                            <div class="col-md-6"><label class="small fw-bold">Glucose</label>{{ form.avg_glucose_level(class="form-control") }}</div>
+                            <div class="col-md-6"><label class="small fw-bold">BMI</label>{{ form.bmi(class="form-control") }}</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer"><button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>{{ form.submit(class="btn btn-primary") }}</div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    const ctx = document.getElementById('riskChart');
+    new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: ['High Risk', 'Medium Risk', 'Low Risk'],
+            datasets: [{
+                data: [{{ high_risk }}, {{ medium_risk }}, {{ low_risk }}],
+                backgroundColor: ['#dc3545', '#ffc107', '#198754'],
+                hoverOffset: 4
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            cutout: '70%',
+        }
+    });
+</script>
+{% endblock %}
